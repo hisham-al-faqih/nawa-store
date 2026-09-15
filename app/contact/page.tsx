@@ -1,0 +1,21 @@
+"use client"
+
+import { FormEvent, useState } from "react"
+import Link from "next/link"
+import { ArrowRight, Loader2, Send } from "lucide-react"
+import { SiteFooter, SiteHeader } from "@/components/site-chrome"
+
+export default function ContactPage() {
+  const [sent, setSent] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setLoading(true); setError("")
+    const form = event.currentTarget
+    const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.fromEntries(new FormData(form))) })
+    setLoading(false)
+    if (!response.ok) { setError("تعذر إرسال الاستفسار. تحقق من البيانات وحاول مرة أخرى."); return }
+    form.reset(); setSent(true)
+  }
+  return <main dir="rtl" className="min-h-screen bg-[#FFFDFB] text-[#2f2728] dark:bg-[#171315] dark:text-[#f9efeb]"><SiteHeader /><div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8"><div className="mb-10 max-w-2xl"><p className="mb-2 text-[10px] font-bold tracking-[0.2em] text-[#a48682]">نحن هنا لمساعدتك</p><h1 className="text-4xl font-bold tracking-tight text-[#3c2b2d] dark:text-[#f7e9e4]">تواصل معنا</h1><p className="mt-4 leading-8 text-[#806e6b] dark:text-[#cdb6b0]">أرسل استفسارك وسيتواصل معك فريق نواة في أقرب وقت.</p></div><div className="grid gap-8 lg:grid-cols-[1fr_0.7fr]"><form onSubmit={submit} className="rounded-[1.5rem] border border-[#eadfd9] bg-white p-6 shadow-sm dark:border-[#3a2b2f] dark:bg-[#21191c] sm:p-8"><div className="grid gap-5 sm:grid-cols-2"><label className="flex flex-col gap-2 text-sm font-bold">الاسم<input required name="name" className="h-12 rounded-xl border border-[#eadfd9] bg-[#fffdfb] px-4 outline-none focus:border-[#773441] dark:border-[#4b373b] dark:bg-[#2a2022]" /></label><label className="flex flex-col gap-2 text-sm font-bold">البريد الإلكتروني<input required type="email" name="email" className="h-12 rounded-xl border border-[#eadfd9] bg-[#fffdfb] px-4 outline-none focus:border-[#773441] dark:border-[#4b373b] dark:bg-[#2a2022]" /></label></div><label className="mt-5 flex flex-col gap-2 text-sm font-bold">رقم الهاتف<input name="phone" inputMode="tel" className="h-12 rounded-xl border border-[#eadfd9] bg-[#fffdfb] px-4 outline-none focus:border-[#773441] dark:border-[#4b373b] dark:bg-[#2a2022]" placeholder="+967 7X XXX XXXX" /></label><label className="mt-5 flex flex-col gap-2 text-sm font-bold">موضوع الاستفسار<input required name="subject" className="h-12 rounded-xl border border-[#eadfd9] bg-[#fffdfb] px-4 outline-none focus:border-[#773441] dark:border-[#4b373b] dark:bg-[#2a2022]" /></label><label className="mt-5 flex flex-col gap-2 text-sm font-bold">الرسالة<textarea required minLength={10} name="message" rows={5} className="rounded-xl border border-[#eadfd9] bg-[#fffdfb] px-4 py-3 outline-none focus:border-[#773441] dark:border-[#4b373b] dark:bg-[#2a2022]" /></label>{error && <p role="alert" className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{error}</p>}{sent && <p role="status" className="mt-4 rounded-xl bg-[#f1ded0] px-4 py-3 text-sm font-bold text-[#773441]">تم إرسال استفسارك بنجاح، سنعود إليك قريباً.</p>}<button disabled={loading} className="mt-6 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#773441] font-bold text-white transition hover:bg-[#612a36] disabled:opacity-60">{loading ? <Loader2 className="animate-spin" /> : <Send />} إرسال الاستفسار</button></form><aside className="rounded-[1.5rem] bg-[#773441] p-7 text-[#F1DED0]"><p className="text-xs font-bold tracking-[0.2em] text-[#e6b9a9]">قنوات مباشرة</p><h2 className="mt-3 text-2xl font-bold text-white">نحن على بُعد رسالة</h2><p className="mt-3 leading-8 text-[#f1ded0]">للاستفسارات العاجلة تواصل معنا عبر واتساب.</p><a href="https://wa.me/967774426179" target="_blank" rel="noreferrer" className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#F1DED0] px-5 py-3 text-sm font-bold text-[#773441]">واتساب 774426179 <ArrowRight /></a><Link href="/products" className="mt-5 block text-sm font-bold text-[#f1ded0]">العودة للتسوق</Link></aside></div></div><SiteFooter /></main>
+}

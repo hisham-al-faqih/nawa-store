@@ -1,0 +1,18 @@
+import Link from "next/link"
+import { prisma } from "@/lib/prisma"
+import { requireAdmin } from "@/lib/auth"
+import { Boxes, ClipboardList, FolderKanban, MessageSquare, PackageCheck, ShoppingCart, Users } from "lucide-react"
+
+export default async function AdminPage() {
+  await requireAdmin()
+  const [products, categories, orders, users, lowStock, inquiries] = await Promise.all([
+    prisma.product.count().catch(() => 0),
+    prisma.category.count().catch(() => 0),
+    prisma.order.count().catch(() => 0),
+    prisma.user.count().catch(() => 0),
+    prisma.product.count({ where: { isActive: true, stockQuantity: { lte: 5 } } }).catch(() => 0),
+    prisma.contactInquiry.findMany({ orderBy: { createdAt: "desc" }, take: 8 }).catch(() => []),
+  ])
+  const stats = [["المنتجات", products, PackageCheck], ["الأقسام", categories, FolderKanban], ["الطلبات", orders, ShoppingCart], ["العملاء", users, Users], ["مخزون منخفض", lowStock, Boxes]] as const
+  return <main dir="rtl" className="min-h-screen bg-[#f8f3f0] px-4 py-6 text-[#2f2728] sm:px-6 lg:px-8"><div className="mx-auto max-w-7xl"><header className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end"><div><p className="text-[10px] font-bold tracking-[0.2em] text-[#a48682]">مساحة العمليات</p><h1 className="mt-1 text-2xl font-bold text-[#3c2b2d]">لوحة تحكم نواة</h1><p className="mt-1 text-sm text-[#806e6b]">إدارة المتجر والطلبات والاستفسارات من مكان واحد.</p></div><Link href="/" className="text-sm font-bold text-[#773441]">عرض المتجر</Link></header><div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">{stats.map(([title, value, Icon]) => <article key={title} className="rounded-2xl border border-[#eadfd9] bg-white p-4"><div className="flex items-center justify-between"><div><p className="text-xs text-[#806e6b]">{title}</p><p className="mt-2 text-2xl font-bold text-[#3c2b2d]">{value}</p></div><div className="flex size-9 items-center justify-center rounded-xl bg-[#F1DED0] text-[#773441]"><Icon /></div></div></article>)}</div><div className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_0.6fr]"><section className="rounded-2xl border border-[#eadfd9] bg-white p-5"><div className="flex items-center justify-between"><div><h2 className="font-bold">استفسارات العملاء</h2><p className="mt-1 text-xs text-[#806e6b]">الرسائل المحفوظة من نموذج التواصل.</p></div><MessageSquare className="text-[#773441]" /></div><div className="mt-4 flex flex-col gap-2">{inquiries.length ? inquiries.map((item) => <article key={item.id} className="rounded-xl bg-[#fdf8f5] p-3"><div className="flex flex-wrap justify-between gap-2"><strong className="text-sm">{item.subject}</strong><span className="text-[10px] text-[#806e6b]">{new Intl.DateTimeFormat("ar-YE", { dateStyle: "medium" }).format(item.createdAt)}</span></div><p className="mt-1 text-xs text-[#806e6b]">{item.name} · {item.email}</p><p className="mt-2 line-clamp-2 text-sm leading-6">{item.message}</p></article>) : <p className="rounded-xl bg-[#fdf8f5] p-4 text-sm text-[#806e6b]">لا توجد استفسارات محفوظة بعد.</p>}</div></section><section className="rounded-2xl border border-[#eadfd9] bg-white p-5"><h2 className="font-bold">إدارة سريعة</h2><div className="mt-4 grid gap-2">{[["إدارة المنتجات", "/products", PackageCheck], ["إدارة الطلبات", "/admin#orders", ClipboardList], ["رسائل التواصل", "/admin#messages", MessageSquare]].map(([label, href, Icon]) => <Link key={label as string} href={href as string} className="flex items-center gap-3 rounded-xl border border-[#eadfd9] p-3 text-sm font-bold transition hover:border-[#cda59b] hover:bg-[#fdf8f5]"><Icon className="text-[#773441]" />{label as string}</Link>)}</div></section></div></div></main>
+}

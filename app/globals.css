@@ -1,0 +1,43 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+
+:root {
+  color-scheme: light;
+  --background: #fffdfb;
+  --foreground: #2f2728;
+  --primary: #773441;
+  --primary-foreground: #fffdfb;
+  --border: #eadfd9;
+  --ring: #773441;
+  --radius: 0.75rem;
+}
+
+html.dark {
+  color-scheme: dark;
+  --background: #171315;
+  --foreground: #f9efeb;
+  --border: #3a2b2f;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font-tajawal), Tahoma, Arial, sans-serif; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid #c88d89; outline-offset: 3px; }
